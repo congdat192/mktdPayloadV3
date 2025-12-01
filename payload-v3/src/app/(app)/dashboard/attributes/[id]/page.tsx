@@ -1,23 +1,21 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import { AttributeForm } from "../attribute-form"
 import { attributesAPI } from "@/lib/payload-client"
 import { Loader2 } from "lucide-react"
 
-import { useParams } from "next/navigation"
-
 export default function EditAttributePage() {
     const params = useParams()
-    const id = params.id as string
-    const [attribute, setAttribute] = useState<any>(null)
+    const [data, setData] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const fetchAttribute = async () => {
+        const fetchData = async () => {
             try {
-                const data = await attributesAPI.getById(id)
-                setAttribute(data)
+                const response = await attributesAPI.getById(params.id as string)
+                setData(response)
             } catch (error) {
                 console.error("Failed to fetch attribute:", error)
             } finally {
@@ -25,10 +23,10 @@ export default function EditAttributePage() {
             }
         }
 
-        if (id) {
-            fetchAttribute()
+        if (params.id) {
+            fetchData()
         }
-    }, [id])
+    }, [params.id])
 
     if (loading) {
         return (
@@ -38,9 +36,9 @@ export default function EditAttributePage() {
         )
     }
 
-    if (!attribute) {
+    if (!data) {
         return <div>Attribute not found</div>
     }
 
-    return <AttributeForm initialData={attribute} />
+    return <AttributeForm initialData={data} />
 }

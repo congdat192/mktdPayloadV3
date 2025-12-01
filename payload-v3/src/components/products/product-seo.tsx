@@ -85,6 +85,29 @@ export function ProductSEO() {
                     </div>
                 </CardContent>
             </Card>
+
+            <Card className="bg-muted/50">
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">JSON-LD Preview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg text-xs overflow-x-auto">
+                        {JSON.stringify({
+                            "@context": "https://schema.org/",
+                            "@type": "Product",
+                            "name": watch("name") || "Product Name",
+                            "description": watch("seo.metaDescription") || "Product Description",
+                            "sku": watch("sku"),
+                            "offers": {
+                                "@type": "Offer",
+                                "price": watch("price"),
+                                "priceCurrency": "VND",
+                                "availability": watch("stockQuantity") > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+                            }
+                        }, null, 2)}
+                    </pre>
+                </CardContent>
+            </Card>
         </div>
     )
 }

@@ -74,8 +74,18 @@ export const Products: CollectionConfig = {
         {
             name: 'stockQuantity',
             type: 'number',
+            label: 'Stock Quantity',
             defaultValue: 0,
             min: 0,
+        },
+        {
+            name: 'lowStockThreshold',
+            type: 'number',
+            label: 'Low Stock Threshold',
+            defaultValue: 10,
+            admin: {
+                description: 'Alert when stock is below this number',
+            },
         },
         {
             name: 'stockStatus',

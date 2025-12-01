@@ -79,7 +79,10 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
             // Clean up data
             const payload = {
                 ...data,
-                parent: data.parent === "none" ? null : data.parent
+                parent: (data.parent && data.parent !== "none") ? (
+                    // Try to convert to number if it looks like a number
+                    !isNaN(Number(data.parent)) ? Number(data.parent) : data.parent
+                ) : null
             }
 
             if (initialData) {
@@ -177,8 +180,8 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
                                 <div className="space-y-2">
                                     <Label>Parent Category</Label>
                                     <Select
-                                        onValueChange={(value: any) => form.setValue("parent", value)}
-                                        defaultValue={form.watch("parent") || "none"}
+                                        onValueChange={(value: any) => form.setValue("parent", value === "none" ? null : value)}
+                                        defaultValue={form.watch("parent") ? String(form.watch("parent")) : "none"}
                                     >
                                         <SelectTrigger>
                                             <SelectValue placeholder="None" />
@@ -186,7 +189,7 @@ export function CategoryForm({ initialData }: CategoryFormProps) {
                                         <SelectContent>
                                             <SelectItem value="none">None</SelectItem>
                                             {categories.map((cat) => (
-                                                <SelectItem key={cat.id} value={cat.id}>
+                                                <SelectItem key={cat.id} value={String(cat.id)}>
                                                     {cat.name}
                                                 </SelectItem>
                                             ))}

@@ -15,12 +15,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 
 export type Category = {
-    id: string
+    id: string | number
     name: string
     slug: string
-    parent?: { id: string; name: string } | string | null
+    parent?: { id: string | number; name: string } | string | number | null
     image?: { url: string; alt: string } | null
     depth?: number // Added for hierarchy display
+    order?: number
     createdAt: string
     updatedAt: string
 }

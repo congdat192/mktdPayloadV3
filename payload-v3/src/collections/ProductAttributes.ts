@@ -48,13 +48,34 @@ export const ProductAttributes: CollectionConfig = {
             required: true,
             fields: [
                 {
-                    name: 'value',
+                    name: 'label',
                     type: 'text',
                     required: true,
                 },
                 {
-                    name: 'label',
+                    name: 'value',
                     type: 'text',
+                    required: true,
+                    admin: {
+                        description: 'Slug/Value for system use (e.g. "red", "xl")',
+                    },
+                },
+                {
+                    name: 'color',
+                    type: 'text',
+                    admin: {
+                        description: 'Hex code (e.g. #FF0000) for color attributes',
+                        condition: (data, siblingData) => data.type === 'color',
+                    },
+                },
+                {
+                    name: 'image',
+                    type: 'upload',
+                    relationTo: 'media',
+                    admin: {
+                        description: 'Texture/Image for image attributes',
+                        condition: (data, siblingData) => data.type === 'image',
+                    },
                 },
             ],
         },

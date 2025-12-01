@@ -11,39 +11,20 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
+import { attributesAPI } from "@/lib/payload-client"
 
 export type Attribute = {
     id: string
     name: string
     slug: string
-    type: "select" | "color" | "button" | "image"
-    options: { value: string; label: string }[]
+    type: string
+    options: any[]
+    createdAt: string
     updatedAt: string
 }
 
 export const columns: ColumnDef<Attribute>[] = [
-    {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={table.getIsAllPageRowsSelected()}
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
     {
         accessorKey: "name",
         header: "Name",
@@ -56,7 +37,8 @@ export const columns: ColumnDef<Attribute>[] = [
         accessorKey: "type",
         header: "Type",
         cell: ({ row }) => {
-            return <Badge variant="outline">{row.getValue("type")}</Badge>
+            const type = row.getValue("type") as string
+            return <div className="capitalize">{type}</div>
         },
     },
     {
@@ -66,15 +48,13 @@ export const columns: ColumnDef<Attribute>[] = [
             const options = row.original.options || []
             return (
                 <div className="flex flex-wrap gap-1">
-                    {options.slice(0, 3).map((opt, i) => (
-                        <Badge key={i} variant="secondary" className="text-xs">
-                            {opt.label || opt.value}
-                        </Badge>
+                    {options.slice(0, 3).map((opt: any, i: number) => (
+                        <span key={i} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                            {opt.label}
+                        </span>
                     ))}
                     {options.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                            +{options.length - 3}
-                        </Badge>
+                        <span className="text-xs text-muted-foreground">+{options.length - 3} more</span>
                     )}
                 </div>
             )
@@ -107,7 +87,20 @@ export const columns: ColumnDef<Attribute>[] = [
                                 Edit
                             </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={async () => {
+                                if (confirm("Are you sure you want to delete this attribute?")) {
+                                    try {
+                                        await attributesAPI.delete(attribute.id)
+                                        window.location.reload()
+                                    } catch (error) {
+                                        console.error("Failed to delete attribute:", error)
+                                        alert("Failed to delete attribute")
+                                    }
+                                }
+                            }}
+                        >
                             <Trash className="mr-2 h-4 w-4" />
                             Delete
                         </DropdownMenuItem>

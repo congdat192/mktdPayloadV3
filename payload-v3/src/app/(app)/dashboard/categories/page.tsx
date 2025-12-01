@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { DataTable } from "@/components/ui/data-table"
-import { columns, Category } from "./columns"
+import { SortableCategoryList } from "@/components/categories/category-list"
+import { Category } from "./columns"
 import { categoriesAPI } from "@/lib/payload-client"
 import { Button } from "@/components/ui/button"
 import { Plus, Loader2 } from "lucide-react"
@@ -17,6 +17,7 @@ export default function CategoriesPage() {
             try {
                 const response = await categoriesAPI.getAll({ limit: 1000 }) // Fetch all to build tree
                 const docs = response.docs as Category[]
+                console.log("Fetched categories:", docs)
 
                 // Build hierarchy
                 const buildTree = (categories: Category[]) => {
@@ -40,6 +41,13 @@ export default function CategoriesPage() {
                         }
                     })
 
+                    // Sort by order
+                    const sortNodes = (nodes: any[]) => {
+                        nodes.sort((a, b) => (a.order || 0) - (b.order || 0))
+                        nodes.forEach(node => sortNodes(node.children))
+                    }
+
+                    sortNodes(roots)
                     return roots
                 }
 
@@ -56,6 +64,8 @@ export default function CategoriesPage() {
 
                 const tree = buildTree(docs)
                 const flatData = flattenTree(tree)
+                console.log("Built tree:", tree)
+                console.log("Flat data with depth:", flatData)
 
                 setData(flatData)
             } catch (error) {
@@ -85,7 +95,32 @@ export default function CategoriesPage() {
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
             ) : (
-                <DataTable columns={columns} data={data} />
+                <SortableCategoryList
+                    categories={data}
+                    onReorder={async (newOrder) => {
+                        setData(newOrder)
+                        try {
+                            // Update order for all items based on their new index
+                            await Promise.all(newOrder.map((cat, index) =>
+                                categoriesAPI.update(cat.id, { order: index })
+                            ))
+                            console.log("Order updated successfully")
+                        } catch (error) {
+                            console.error("Failed to update order:", error)
+                        }
+                    }}
+                    onDelete={async (id) => {
+                        if (confirm("Are you sure you want to delete this category?")) {
+                            try {
+                                await categoriesAPI.delete(id)
+                                setData(data.filter(c => c.id !== id))
+                            } catch (error) {
+                                console.error("Failed to delete category:", error)
+                                alert("Failed to delete category")
+                            }
+                        }
+                    }}
+                />
             )}
         </div>
     )

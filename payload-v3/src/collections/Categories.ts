@@ -18,6 +18,13 @@ export const Categories: CollectionConfig = {
             required: true,
         },
         {
+            name: 'order',
+            type: 'number',
+            admin: {
+                position: 'sidebar',
+            },
+        },
+        {
             name: 'slug',
             type: 'text',
             required: true,

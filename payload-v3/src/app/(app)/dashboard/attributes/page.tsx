@@ -2,23 +2,31 @@
 
 import { useEffect, useState } from "react"
 import { DataTable } from "@/components/ui/data-table"
-import { columns, Attribute } from "./columns"
+import { columns } from "./columns"
 import { attributesAPI } from "@/lib/payload-client"
 import { Button } from "@/components/ui/button"
 import { Plus, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function AttributesPage() {
-    const [data, setData] = useState<Attribute[]>([])
+    const [data, setData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await attributesAPI.getAll()
+                const response = await attributesAPI.getAll({ limit: 100 })
                 setData(response.docs)
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to fetch attributes:", error)
+                if (error.response) {
+                    console.error("Error response:", error.response.data)
+                    console.error("Error status:", error.response.status)
+                } else if (error.request) {
+                    console.error("Error request:", error.request)
+                } else {
+                    console.error("Error message:", error.message)
+                }
             } finally {
                 setLoading(false)
             }
