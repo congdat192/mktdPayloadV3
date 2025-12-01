@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
     data: TData[]
     searchKey?: string
     onDelete?: (rows: TData[]) => void
+    onBulkAction?: (action: string, rows: TData[]) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -40,6 +41,7 @@ export function DataTable<TData, TValue>({
     data,
     searchKey = "name",
     onDelete,
+    onBulkAction,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -70,7 +72,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="space-y-4">
-            <DataTableToolbar table={table} searchKey={searchKey} onDelete={onDelete} />
+            <DataTableToolbar table={table} searchKey={searchKey} onDelete={onDelete} onBulkAction={onBulkAction} />
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>

@@ -53,12 +53,31 @@ export default function ProductsPage() {
                         setLoading(true)
                         try {
                             await Promise.all(selectedRows.map(row => productsAPI.delete(row.id)))
-                            // Refresh data
-                            const result = await productsAPI.getAll({ limit: 100 })
-                            setData(result.docs)
+                            await fetchData()
                         } catch (error) {
                             console.error("Failed to delete products:", error)
                             alert("Failed to delete some products")
+                        } finally {
+                            setLoading(false)
+                        }
+                    }}
+                    onBulkAction={async (action, selectedRows) => {
+                        const actionText = action === 'publish' ? 'publish' : 'unpublish'
+                        if (!confirm(`Are you sure you want to ${actionText} ${selectedRows.length} products?`)) return
+
+                        setLoading(true)
+                        try {
+                            const updates = selectedRows.map(row =>
+                                productsAPI.update(row.id, {
+                                    _status: action === 'publish' ? 'published' : 'draft'
+                                })
+                            )
+                            await Promise.all(updates)
+                            await fetchData()
+                            alert(`Successfully ${actionText}ed ${selectedRows.length} products`)
+                        } catch (error) {
+                            console.error(`Failed to ${actionText} products:`, error)
+                            alert(`Failed to ${actionText} some products`)
                         } finally {
                             setLoading(false)
                         }

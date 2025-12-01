@@ -35,11 +35,34 @@ function ActionsCell({ product, onRefresh }: { product: Product, onRefresh: () =
         try {
             await productsAPI.delete(product.id)
             alert('Product deleted successfully')
-            // Refresh the data
             onRefresh()
         } catch (error) {
             console.error('Failed to delete product:', error)
             alert('Failed to delete product')
+        }
+    }
+
+    const handleDuplicate = async () => {
+        try {
+            // Fetch full product data
+            const fullProduct = await productsAPI.getById(product.id)
+
+            // Create duplicate with modified name and slug, removing metadata
+            const { id, createdAt, updatedAt, ...cleanData } = fullProduct
+
+            const duplicateData = {
+                ...cleanData,
+                name: `${fullProduct.name} (Copy)`,
+                slug: `${fullProduct.slug}-copy-${Date.now()}`,
+            }
+
+            await productsAPI.create(duplicateData)
+            alert('Product duplicated successfully')
+            onRefresh()
+        } catch (error: any) {
+            console.error('Failed to duplicate product:', error)
+            console.error('Error response:', error.response?.data)
+            alert('Failed to duplicate product')
         }
     }
 
@@ -61,6 +84,9 @@ function ActionsCell({ product, onRefresh }: { product: Product, onRefresh: () =
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push(`/dashboard/products/${product.id}`)}>
                     Edit Product
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDuplicate}>
+                    Duplicate Product
                 </DropdownMenuItem>
                 <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
                     Delete Product
